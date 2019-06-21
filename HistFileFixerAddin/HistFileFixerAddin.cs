@@ -1,9 +1,8 @@
 using System;
-using System.Collections.Generic;
 using BrainVision.AnalyzerAutomation;
 using BrainVision.Interfaces;
 
-namespace HistFileFixer
+namespace HistFileFixerAddin
 {
     [AddIn("{8cf0d017-e7dc-4c20-90cb-b42c0a692c59}", "Data Path Fixer", "Fix the data paths", 0, 1000000)]
     public class HistFileFixerAddin : IAnalyzerAddIn
@@ -17,8 +16,10 @@ namespace HistFileFixer
                 string datapath = ws.RawFileFolder;
                 var pb = app.CreateProgressBar("Fixing data files", $"Finding data files in {datapath}...");
 
-                var headers = HistFileFixer.EnumerateHeaders(datapath);
-                var raws = HistFileFixer.RawPathsFromHeaders(headers);
+                var hff = new HistFileFixer.HistFileFixer((title, message) =>
+                    app.AskOKCancel(message) == MessageButton.OK);
+                var headers = hff.EnumerateHeaders(datapath);
+                var raws = hff.RawPathsFromHeaders(headers);
 
 
                 pb.Text = "Fixing data files";
@@ -46,7 +47,7 @@ namespace HistFileFixer
 
                             Console.WriteLine($"{basename} -> {raw}, {header}");
                             if (app.AskYesNo($"Set paths for {hf.Name} to {header} / {raw}") == MessageButton.Yes)
-                                HistFileFixer.SetHistFileDataPaths(hf.FullName, raw, header);
+                                hff.SetHistFileDataPaths(hf.FullName, raw, header);
                         }
                         catch (Exception e)
                         {
@@ -62,7 +63,6 @@ namespace HistFileFixer
             catch (Exception e)
             {
                 app.Error(e.Message);
-                return;
             }
         }
 

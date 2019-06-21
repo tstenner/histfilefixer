@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Windows.Forms;
 using System.Xml;
-using IWshRuntimeLibrary;
 using OpenMcdf;
 using static System.IO.Path;
 using File = System.IO.File;
@@ -14,7 +12,27 @@ namespace HistFileFixer
 {
     public class HistFileFixer
     {
-        public static void SetHistFileDataPaths(string s, string rawpath, string headerpath = null)
+        public HistFileFixer(AskOk askOkFn)
+        {
+            _askOkFn = askOkFn;
+        }
+
+        public delegate bool AskOk(string title, string message);
+        public delegate string AskForFile(string path, string filter);
+
+        private static string ShortcutTarget(string shortcutpath)
+        { 
+/*
+#if NET472
+            WshShell shell = new WshShell();
+            return ((IWshShortcut) shell.CreateShortcut(shortcutpath)).TargetPath;
+
+#elif
+*/
+            return ShellLink.Shortcut.ReadFromFile(shortcutpath).LinkTargetIDList.Path;
+//#endif
+        }
+        public void SetHistFileDataPaths(string s, string rawpath, string headerpath = null)
         {
             var hf = new CompoundFile(s, CFSUpdateMode.Update, CFSConfiguration.Default);
             SetPaths(hf, "DataPath", rawpath);
@@ -23,33 +41,32 @@ namespace HistFileFixer
             hf.Close();
         }
 
-        private static void SetPaths(CompoundFile f, string path, string value)
+        private void SetPaths(CompoundFile f, string path, string value)
         {
             var newpath = Encoding.UTF8.GetBytes(value).Append((byte) 0).ToArray();
             f.RootStorage.GetStream(path).SetData(newpath);
             f.RootStorage.GetStream(path + 'W').SetData(newpath);
         }
 
-        private static string GetRawFilepath(string vhdr)
+        private string GetRawFilepath(string vhdr)
         {
             var datafileline = File.ReadLines(vhdr).First(line => line.StartsWith("DataFile"));
             return GetDirectoryName(vhdr) + DirectorySeparatorChar + datafileline.Split('=').Skip(1).First().Trim();
         }
 
-        public static string WarnIfMultiple(string key, string[] list)
+        public string WarnIfMultiple(string key, string[] list)
         {
             string res = list.First();
             if (list.Length > 1)
-                MessageBox.Show($"Found {list.Length} files for {key}:\n{string.Join("\n",list)}\n\nSelecting {res}");
+                _askOkFn.Invoke("Multiple files found", $"Found {list.Length} files for {key}:\n{string.Join("\n",list)}\n\nSelecting {res}");
             return res;
         }
 
-        public static Dictionary<string, string> EnumerateHeaders(string datapath)
+        public Dictionary<string, string> EnumerateHeaders(string datapath)
         {
-            var shell = new WshShell();
             var headerpaths =
                 Directory.GetFiles(datapath, "*.lnk", SearchOption.AllDirectories)
-                    .Select(link => ((IWshShortcut) shell.CreateShortcut(link)).TargetPath)
+                    .Select(ShortcutTarget)
                     .Where(link=>link.EndsWith(".vhdr"))
                     .Concat(Directory.GetFiles(datapath, "*.vhdr", SearchOption.AllDirectories)
                         .Select(GetFullPath))
@@ -58,14 +75,14 @@ namespace HistFileFixer
             return headerpaths;
         }
 
-        public static Dictionary<string, string> RawPathsFromHeaders(Dictionary<string, string> headerpaths)
+        public Dictionary<string, string> RawPathsFromHeaders(Dictionary<string, string> headerpaths)
         {
             var rawfilepaths = headerpaths.ToDictionary(path => path.Key,
                 path => GetRawFilepath(path.Value));
             return rawfilepaths;
         }
 
-        public static void FixupWorkspace(string workspace)
+        public void FixupWorkspace(string workspace)
         {
             var doc = new XmlDocument();
             doc.Load(workspace);
@@ -78,7 +95,7 @@ namespace HistFileFixer
             FixupWorkspace(rawpath, histpath);
         }
 
-        public static void FixupWorkspace(string rawpath, string histpath)
+        public void FixupWorkspace(string rawpath, string histpath)
         {
             var headers = EnumerateHeaders(rawpath);
             var raws = RawPathsFromHeaders(headers);
@@ -99,5 +116,6 @@ namespace HistFileFixer
                 SetHistFileDataPaths(histfile, raws[basename], header);
             }
         }
+        private readonly AskOk _askOkFn;
     }
 }
