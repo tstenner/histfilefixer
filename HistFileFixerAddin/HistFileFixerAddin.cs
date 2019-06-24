@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using BrainVision.AnalyzerAutomation;
 using BrainVision.Interfaces;
 
@@ -16,33 +17,40 @@ namespace HistFileFixerAddin
                 string datapath = ws.RawFileFolder;
                 var pb = app.CreateProgressBar("Fixing data files", $"Finding data files in {datapath}...");
 
-                var hff = new HistFileFixer.HistFileFixer((title, message) =>
-                    app.AskOKCancel(message) == MessageButton.OK);
-                var headers = hff.EnumerateHeaders(datapath);
-                var raws = hff.RawPathsFromHeaders(headers);
-
+                var hff = new HistFileFixer.HistFileFixer
+                {
+                    AskOkFn = message => app.AskOKCancel(message) == MessageButton.OK,
+                    SelectFromMultipleFn = (key, list) =>
+                    {
+                        string res = list.First();
+                        if (list.Length == 1) return res;
+                        return app.AskYesNo(
+                                   $"Found {list.Length} files for {key}:\n{string.Join("\n", list)}\n\nSelecting {res}.\n\nContinue?") ==
+                               MessageButton.Yes ? res : null;
+                    }
+                };
+                var matches = hff.MatchHistFiles(datapath, app.HistoryFiles.Select(hf => hf.Name)).ToArray();
 
                 pb.Text = "Fixing data files";
                 pb.SetRange(0, app.HistoryFiles.Length);
                 pb.Position = 1;
                 pb.CancelEnabled = true;
-                foreach (var hf in app.HistoryFiles)
+                foreach (var (hf, basename, header, raw) in app.HistoryFiles.Zip(matches, (hf, match) => (hf, basename: match.histfile, match.header, raw: match.rawfile)))
                 {
                     if (pb.UserCanceled) break;
-                    pb.Text = hf.Name;
+                    pb.Text = basename;
                     hf.Open();
                     var needed = !hf[0].DataAvailable;
                     hf.Close();
                     if (needed)
                         try
                         {
-                            var basename = hf.Name;
-                            if (!headers.TryGetValue(basename, out var header))
+                            if (header == null)
                                 app.Warning("No header found for " + basename);
-                            if (!raws.TryGetValue(basename, out var raw))
+                            if (raw == null)
                             {
                                 app.Error("No raw file found for " + basename);
-                                continue;
+                                break;
                             }
 
                             Console.WriteLine($"{basename} -> {raw}, {header}");

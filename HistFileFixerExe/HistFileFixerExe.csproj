@@ -5,6 +5,9 @@
 	  <UseWindowsForms>true</UseWindowsForms>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="CommandLineParser" Version="2.5.0" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\HistFileFixer\HistFileFixer.csproj" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net472' ">
