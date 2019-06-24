@@ -1,7 +1,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
 VisualStudioVersion = 16.0.29009.5
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HistFileFixerAddin", "HistFileFixerAddin\HistFileFixerAddin.csproj", "{8CF0D017-E7DC-4C20-90CB-B42C0A692C58}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HistFileFixerAddin", "HistFileFixerAddin\HistFileFixerAddin.csproj", "{8CF0D017-E7DC-4C20-90CB-B42C0A692C58}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HistFileFixer", "HistFileFixer\HistFileFixer.csproj", "{120D79B4-8EA5-436E-80FD-3360F503C590}"
 EndProject
@@ -14,6 +15,23 @@ Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8CF0D017-E7DC-4C20-90CB-B42C0A692C58}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8CF0D017-E7DC-4C20-90CB-B42C0A692C58}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8CF0D017-E7DC-4C20-90CB-B42C0A692C58}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8CF0D017-E7DC-4C20-90CB-B42C0A692C58}.Release|Any CPU.Build.0 = Release|Any CPU
+		{120D79B4-8EA5-436E-80FD-3360F503C590}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{120D79B4-8EA5-436E-80FD-3360F503C590}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{120D79B4-8EA5-436E-80FD-3360F503C590}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{120D79B4-8EA5-436E-80FD-3360F503C590}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C989DDD2-F979-4799-A9CD-78BAA62CDE20}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C989DDD2-F979-4799-A9CD-78BAA62CDE20}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C989DDD2-F979-4799-A9CD-78BAA62CDE20}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C989DDD2-F979-4799-A9CD-78BAA62CDE20}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {17394DB1-737E-4CDE-97AD-9A235132F2EB}

@@ -1,0 +1,9 @@
+<Project>
+	<PropertyGroup>
+		<Authors>Tristan Stenner</Authors>
+		<Company>IMPS UKSH Kiel</Company>
+		<Product>HistFileFixer</Product>
+		<OutputPath>$(SolutionDir)bin\$(Configuration)_$(TargetFramework)\$(MSBuildProjectName)</OutputPath>
+		<OutDir>$(OutputPath)</OutDir>
+	</PropertyGroup>
+</Project>

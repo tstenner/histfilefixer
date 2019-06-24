@@ -1,10 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net472</TargetFramework>
-    <Authors>Tristan Stenner</Authors>
-    <Company>IMPS UKSH Kiel</Company>
-    <Product>HistFileFixer</Product>
-	<OutputPath>$(SolutionDir)bin\$(Platform)\$(Configuration)</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>
