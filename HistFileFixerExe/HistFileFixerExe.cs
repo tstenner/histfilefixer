@@ -45,7 +45,7 @@ namespace HistFileFixerExe
         {
             try
             {
-                if (args.Length == 0) args.Append(Getfile("Analyzer Workspace files|*.wksp2"));
+                if (args.Length == 0) args = new string[]{Getfile("Analyzer Workspace files|*.wksp2")};
                 var hff = new HistFileFixer.HistFileFixer(AskOk);
                 if (args.Length == 1)
                     hff.FixupWorkspace(args[0]);
