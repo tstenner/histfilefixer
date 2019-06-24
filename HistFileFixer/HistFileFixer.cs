@@ -86,13 +86,13 @@ namespace HistFileFixer
         {
             var doc = new XmlDocument();
             doc.Load(workspace);
-            Console.WriteLine(doc.InnerXml);
-            Console.Out.WriteLine(doc.SelectSingleNode("Workspace")?.InnerXml);
-            var rawpath = doc.SelectSingleNode("Workspace/RawFilePath")?.InnerText;
-            var histpath = doc.SelectSingleNode("Workspace/HistoryFilePath")?.InnerText;
-            Console.WriteLine(rawpath);
-            Console.WriteLine(histpath);
-            FixupWorkspace(rawpath, histpath);
+            var wksp = doc.SelectSingleNode("Workspace");
+            if(wksp==null) throw new ArgumentException("Workspace node not found");
+            var rawpath = wksp.SelectSingleNode("RawFilePath");
+            var histpath = wksp.SelectSingleNode("HistoryFilePath");
+            if(rawpath==null) throw new ArgumentException("<RawFilePath> not found");
+            if(histpath==null) throw new ArgumentException("<HistoryFilePath> not found");
+            FixupWorkspace(rawpath.InnerXml, histpath.InnerXml);
         }
 
         public void FixupWorkspace(string rawpath, string histpath)
