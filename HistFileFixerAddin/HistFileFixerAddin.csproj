@@ -9,9 +9,11 @@
 	<ProjectReference Include="..\HistFileFixer\HistFileFixer.csproj" />
     <Reference Include="AnalyzerAutomation">
       <HintPath>C:\Vision\Analyzer2\AnalyzerAutomation.dll</HintPath>
+	  <Private>false</Private>
     </Reference>
     <Reference Include="AnalyzerInterfaces">
       <HintPath>C:\Vision\Analyzer2\AnalyzerInterfaces.dll</HintPath>
+      <Private>false</Private>
     </Reference>
   </ItemGroup>
 </Project>
