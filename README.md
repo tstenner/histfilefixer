@@ -37,7 +37,9 @@ You can also supply a history file (`.ehst2`) and EEG data file (most likely
 ## Analyzer Add-In
 
 Simply copy the `dll` files to your Analyzer directory or add the downloaded
-folder to the analyzer config.
+folder to the analyzer config:
+
+![Analyzer admin screenshot](analyzeradmin.png)
 
 After restarting Analyzer, you can use the "Fix data paths" addin to fix all
 data files in the active workspace Analyzer can't find a data file for.
