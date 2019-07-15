@@ -17,7 +17,52 @@ namespace HistFileFixer
 	{
 		public delegate string AskForFile(string path, string filter);
 
-		private static string ShortcutTarget(string shortcutpath) => ShellLink.Shortcut.ReadFromFile(shortcutpath).LinkTargetIDList.Path;
+		// Get the target for a lnk file (https://blez.wordpress.com/2013/02/18/get-file-shortcuts-target-with-c#)
+		private string ShortcutTarget(string file)
+		{
+			if (GetExtension(file).ToLower() != ".lnk")
+				throw new Exception("Supplied file must be a .LNK file");
+
+			var fileStream = File.Open(file, FileMode.Open, FileAccess.Read);
+			using (var fileReader = new BinaryReader(fileStream))
+			{
+				fileStream.Seek(0x14, SeekOrigin.Begin);     // Seek to flags
+				if ((fileReader.ReadUInt32() & 1) == 1)
+				{
+					// Bit 1 set means we have to skip the shell item ID list
+					// Seek to the end of the header
+					fileStream.Seek(0x4c, SeekOrigin.Begin);
+					// Read the length of the Shell item ID list
+					// Seek past it (to the file locator info)
+					fileStream.Seek(fileReader.ReadUInt16(), SeekOrigin.Current);
+				}
+
+				// Store the offset where the file info structure begins
+				var fileInfoStartsAt = fileStream.Position;
+				// read the length of the whole struct
+				var totalStructLength = fileReader.ReadUInt32();
+
+				// seek to offset to base pathname
+				fileStream.Seek(0xc, SeekOrigin.Current);
+				// read offset to base pathname the offset is from the beginning of the file info struct (fileInfoStartsAt)
+				var fileOffset = fileReader.ReadUInt32();
+				// Seek to beginning of base pathname (target)
+				fileStream.Seek((fileInfoStartsAt + fileOffset), SeekOrigin.Begin);
+				var pathLength = (totalStructLength + fileInfoStartsAt) - fileStream.Position - 2;
+				// read the base pathname. I don't need the 2 terminating nulls.
+				var link = new string(fileReader.ReadChars((int)pathLength));
+
+				var begin = link.IndexOf("\0\0");
+				if (begin > -1)
+				{
+					var end = link.IndexOf("\\\\", begin + 2) + 2;
+					end = link.IndexOf('\0', end) + 1;
+					return link.Substring(0, begin) + link.Substring(end);
+				}
+				else
+					return link;
+			}
+		}
 
 		public void SetHistFileDataPaths(string historyfile, string rawpath, string headerpath = null)
 		{
