@@ -3,6 +3,7 @@
 		<Authors>Tristan Stenner</Authors>
 		<Company>IMPS UKSH Kiel</Company>
 		<Product>HistFileFixer</Product>
+		<PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
 		<OutputPath>$(SolutionDir)bin\$(Configuration)_$(TargetFramework)\$(MSBuildProjectName)</OutputPath>
 		<OutDir>$(OutputPath)</OutDir>
 	</PropertyGroup>
