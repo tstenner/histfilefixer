@@ -3,7 +3,7 @@ using System.Linq;
 using BrainVision.AnalyzerAutomation;
 using BrainVision.Interfaces;
 
-namespace HistFileFixerAddin
+namespace HistFileFixer
 {
 	[AddIn("{8cf0d017-e7dc-4c20-90cb-b42c0a692c59}", "Data Path Fixer", "Fix the data paths", 0, 1000000)]
 	public class HistFileFixerAddin : IAnalyzerAddIn
@@ -17,7 +17,7 @@ namespace HistFileFixerAddin
 				var datapath = ws.RawFileFolder;
 				var pb = app.CreateProgressBar("Fixing data files", $"Finding data files in {datapath}...");
 
-				var hff = new HistFileFixer.HistFileFixer
+				var hff = new HistFileFixer
 				{
 					AskOkFn = message => app.AskOKCancel(message) == MessageButton.OK,
 					SelectFromMultipleFn = (key, list) =>
@@ -55,7 +55,7 @@ namespace HistFileFixerAddin
 
 							Console.WriteLine($"{basename} -> {raw}, {header}");
 							if (app.AskYesNo($"Set paths for {hf.Name} to {header} / {raw}") == MessageButton.Yes)
-								hff.SetHistFileDataPaths(hf.FullName, raw, header);
+								HistFileFixer.SetHistFileDataPaths(hf.FullName, raw, header);
 						}
 						catch (Exception e)
 						{
@@ -76,23 +76,16 @@ namespace HistFileFixerAddin
 
 		public object GetInfo(string sInfo, object other)
 		{
-			switch (sInfo)
+			return sInfo switch
 			{
-				case ComponentInfos.MenuText:
-					return "Fix Data Paths";
-				case ComponentInfos.HelpText:
-					return "Try to find the header / data files again";
-				case ComponentInfos.AutomationName:
-					return "none";
-				case ComponentInfos.WindowTitle:
-					return "Superfenstertitel";
-				case ComponentInfos.Visible:
-					return true;
-				case ComponentInfos.AddInCategory:
-					return "Superkategorie";
-				default:
-					return "";
-			}
+				ComponentInfos.MenuText => "Fix Data Paths",
+				ComponentInfos.HelpText => "Try to find the header / data files again",
+				ComponentInfos.AutomationName => "none",
+				ComponentInfos.WindowTitle => "Superfenstertitel",
+				ComponentInfos.Visible => true,
+				ComponentInfos.AddInCategory => "Superkategorie",
+				_ => "",
+			};
 		}
 
 		public bool InitContext(IAnalyzerContext context) => true;

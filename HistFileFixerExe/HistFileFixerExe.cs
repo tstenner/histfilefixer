@@ -1,10 +1,13 @@
 using System;
 using CommandLine;
-#if NET472
+using OpenMcdf;
+using System.Text;
+using System.IO;
+#if NETFRAMEWORK
 using System.Windows.Forms;
 #endif
 
-namespace HistFileFixerExe
+namespace HistFileFixer
 {
 	[Verb("fixup", HelpText = "Fix paths to data files in history files")]
 	internal class CmdLineOptions
@@ -20,27 +23,26 @@ namespace HistFileFixerExe
 	}
 	internal class HistFileFixerExe
 	{
-#if NET472
-		private static string Getfile(string filter)
+#if NETFRAMEWORK
+		private static string GetFile(string filter)
 		{
 			Console.WriteLine("Opening a box to get the file");
-			var fd = new OpenFileDialog { InitialDirectory = "C:\\", Filter = filter, CheckFileExists = true };
-			while (fd.ShowDialog() != DialogResult.OK)
-			{
-			}
+			using var fd = new OpenFileDialog { InitialDirectory = "C:\\", Filter = filter, CheckFileExists = true };
+			while (fd.ShowDialog() != DialogResult.OK) { }
 			return fd.FileName;
 		}
-		/*private static bool AskOk(string message) {
-            return MessageBox.Show(message, "", MessageBoxButtons.OKCancel) == DialogResult.OK;
-        }*/
+
+		private static bool AskOk(string message)
+		{
+			return MessageBox.Show(message, "", MessageBoxButtons.OKCancel) == DialogResult.OK;
+		}
 #else
-		private static string Getfile(string filter)
+		private static string GetFile(string filter)
 		{
 			Console.WriteLine($"No file found on the command line, please input a path to a file ({filter}) here:");
 			return Console.ReadLine().Trim();
 		}
 
-#endif
 		private static bool AskOk(string message)
 		{
 			do
@@ -52,6 +54,7 @@ namespace HistFileFixerExe
 				if (ch == 'n') return false;
 			} while (true);
 		}
+#endif
 
 		private static string SelectFromMultiple(string key, string[] list)
 		{
@@ -69,31 +72,24 @@ namespace HistFileFixerExe
 		[STAThread]
 		private static void Main(string[] args)
 		{
-			try
-			{
-				if (args.Length == 0) args = new[] { Getfile("Analyzer Workspace files|*.wksp2") };
-				Parser.Default.ParseArguments<CmdLineOptions>(args)
-					.WithParsed(options =>
+			if (args.Length == 0) args = new[] { GetFile("Analyzer Workspace files|*.wksp2") };
+			Parser.Default.ParseArguments<CmdLineOptions>(args)
+				.WithParsed(options =>
+				{
+					var hff = new HistFileFixer
 					{
-						var hff = new HistFileFixer.HistFileFixer
-						{
-							AskOkFn = options.Yes
-								? (HistFileFixer.AskOk)(message =>
-								{
-									Console.WriteLine($"Asked '{message}', assuming yes (--yes)");
-									return true;
-								})
-								: AskOk,
-							SelectFromMultipleFn = SelectFromMultiple
-						};
-						hff.LoadWorkspace(options.WorkspaceFile, out var rawpath, out var historypath);
-						hff.FixupWorkspace(rawpath, historypath, options.DryRun);
-					});
-			}
-			catch (Exception e)
-			{
-				Console.WriteLine(e);
-			}
+						AskOkFn = options.Yes
+							? (AskOk)(message =>
+							{
+								Console.WriteLine($"Asked '{message}', assuming yes (--yes)");
+								return true;
+							})
+							: AskOk,
+						SelectFromMultipleFn = SelectFromMultiple
+					};
+					HistFileFixer.LoadWorkspace(options.WorkspaceFile, out var rawpath, out var historypath);
+					hff.FixupWorkspace(rawpath, historypath, options.DryRun);
+				});
 		}
 	}
 }

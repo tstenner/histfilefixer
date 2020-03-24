@@ -3,8 +3,18 @@
 		<Authors>Tristan Stenner</Authors>
 		<Company>IMPS UKSH Kiel</Company>
 		<Product>HistFileFixer</Product>
+		<RepositoryUrl>https://github.com/tstenner/histfilefixer</RepositoryUrl>
+		<Version>0.2</Version>
 		<PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
-		<OutputPath>$(SolutionDir)bin\$(Configuration)_$(TargetFramework)\$(MSBuildProjectName)</OutputPath>
-		<OutDir>$(OutputPath)</OutDir>
+		<OutputPath>$(SolutionDir)bin\$(Configuration)_$(TargetFramework)</OutputPath>
+		<OutDir>$(SolutionDir)obj\$(Configuration)_$(TargetFramework)</OutDir>
+		<TargetFrameworks>net48;netcoreapp3.1</TargetFrameworks>
+		<LangVersion>8</LangVersion>
 	</PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.8">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
 </Project>
